@@ -1,0 +1,30 @@
+package com.example.email.controller;
+
+import com.example.email.dto.ResponseDTO;
+import com.example.email.dto.UserDTO;
+import com.example.email.service.EmailService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/emails")
+public class EmailController {
+
+    private final EmailService emailService;
+
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+
+    @PostMapping
+    public ResponseEntity<ResponseDTO> criarUsuario(@Valid @RequestBody UserDTO userDTO) {
+        ResponseDTO responseDTO = this.emailService.sendWelcomeEMail(userDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+    }
+}
