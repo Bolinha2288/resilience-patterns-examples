@@ -3,6 +3,8 @@ package com.example.users.external;
 import com.example.users.dto.ResponseDTO;
 import com.example.users.dto.UserDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,25 +28,43 @@ public class EmailClient {
     }
 
     @CircuitBreaker(name = EMAIL_MANAGER, fallbackMethod = "fallbackSendEmail")
-    public ResponseDTO sendWelcomeEmail(UserDTO userDTO) {
+    public ResponseDTO sendWelcomeEmailWithCircuitBreaker(UserDTO userDTO) {
+        return sendMessage(userDTO);
+    }
+
+    private ResponseDTO fallbackSendEmail(UserDTO userDTO, Throwable t) {
+        log.warn("Circuit Breaker Fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        return new ResponseDTO("Fail to send message email.",List.of(false));
+    }
+
+    @Retry(name = EMAIL_MANAGER, fallbackMethod = "fallbackSendEmailRetry")
+    public ResponseDTO sendWelcomeEmailWithRetry(UserDTO userDTO) {
+        return sendMessage(userDTO);
+    }
+
+    private ResponseDTO fallbackSendEmailRetry(UserDTO userDTO, Throwable t) {
+        log.warn("Retry fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        return new ResponseDTO("Fail retry send message email.", List.of(false));
+    }
+
+    @RateLimiter(name = EMAIL_MANAGER, fallbackMethod = "fallbackSendEmailRateLimiter")
+    public ResponseDTO sendWelcomeEmailWithRateLimit(UserDTO userDTO) {
+        return sendMessage(userDTO);
+    }
+
+    private ResponseDTO fallbackSendEmailRateLimiter(UserDTO userDTO, Throwable t) {
+        log.warn("Rate Limiter fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        return new ResponseDTO("Limit exceded, await moment before send new message email.", List.of(false));
+    }
+
+    private ResponseDTO sendMessage(UserDTO userDTO) {
         return webClientBuilder.build()
                 .post()
                 .uri(emailManagerBaseUrl)
                 .bodyValue(userDTO)
                 .retrieve()
                 .bodyToMono(ResponseDTO.class)
-                .doOnNext(response -> log.info("log response email-manager: {}", response))
+                .doOnNext(response -> log.info("Response from email manager: {}", response))
                 .block();
     }
-
-    private ResponseDTO fallbackSendEmail(UserDTO userDTO, Throwable t) {
-        log.warn("Fallback: não foi possível enviar o e-mail para '{}'. Causa: {}", userDTO.getEmail(), t.getMessage());
-        ResponseDTO fallbackResponse = new ResponseDTO(
-                "Falha ao enviar e-mail: fallback ativado.",
-                List.of(false)
-        );
-
-        return fallbackResponse;
-    }
-
 }

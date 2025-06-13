@@ -35,7 +35,7 @@ class UserControllerTests {
         UserDTO userDTO = createUserDTO();
         when(userService.createUser(userDTO)).thenReturn(createResponse());
         UserController userController = new UserController(userService);
-        ResponseEntity<ResponseDTO> response = userController.criarUsuario(userDTO);
+        ResponseEntity<ResponseDTO> response = userController.createUserCircuitBreaker(userDTO);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 

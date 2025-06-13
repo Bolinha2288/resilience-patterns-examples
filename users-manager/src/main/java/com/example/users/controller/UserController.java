@@ -21,9 +21,21 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseDTO> criarUsuario(@Valid @RequestBody UserDTO userDTO) {
+    @PostMapping("/circuit-breaker")
+    public ResponseEntity<ResponseDTO> createUserCircuitBreaker(@Valid @RequestBody UserDTO userDTO) {
         ResponseDTO responseDTO = this.userService.createUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @PostMapping("/rate-limiter")
+    public ResponseEntity<ResponseDTO> createUserRateLimit(@Valid @RequestBody UserDTO userDTO) {
+        ResponseDTO responseDTO = this.userService.createUserRateLimiter(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    @PostMapping("/retry")
+    public ResponseEntity<ResponseDTO> createUserRetry(@Valid @RequestBody UserDTO userDTO) {
+        ResponseDTO responseDTO = this.userService.createUserRetry(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 }
