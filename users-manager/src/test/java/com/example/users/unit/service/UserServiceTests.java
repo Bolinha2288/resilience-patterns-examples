@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class UserServiceTests {
 
@@ -29,6 +32,9 @@ public class UserServiceTests {
     void createUserTest() {
 
         UserDTO userDTO = createUserDTO();
+
+        when(emailClient.sendWelcomeEmailWithCircuitBreaker(userDTO))
+                .thenReturn(new ResponseDTO("User created with Circuit Breaker", List.of(true)));
 
         ResponseDTO response = userService.createUser(userDTO);
 

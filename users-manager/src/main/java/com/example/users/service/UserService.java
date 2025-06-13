@@ -20,21 +20,31 @@ public class UserService {
 
     public ResponseDTO createUser(UserDTO userDTO) {
         log.info("Starting user create with Circuit Breaker: {}", userDTO);
-        emailClient.sendWelcomeEmailWithCircuitBreaker(userDTO);
+        ResponseDTO responseDTO = emailClient.sendWelcomeEmailWithCircuitBreaker(userDTO);
+        if (!responseDTO.data().isEmpty() && Boolean.FALSE.equals(responseDTO.data().getFirst())) {
+            return responseDTO;
+        }
         log.info("Successfully user create: {}", userDTO);
         return new ResponseDTO("User created with Circuit Breaker", List.of(userDTO));
     }
 
     public ResponseDTO createUserRateLimiter(UserDTO userDTO) {
         log.info("Starting user create with Rate Limit: {}", userDTO);
-        emailClient.sendWelcomeEmailWithRateLimit(userDTO);
+        ResponseDTO responseDTO = emailClient.sendWelcomeEmailWithRateLimit(userDTO);
+        if (!responseDTO.data().isEmpty() && Boolean.FALSE.equals(responseDTO.data().getFirst())) {
+            return responseDTO;
+        }
+
         log.info("Successfully user create with Rate Limit: {}", userDTO);
         return new ResponseDTO("User created", List.of(userDTO));
     }
 
     public ResponseDTO createUserRetry(UserDTO userDTO) {
         log.info("Starting user create with Retry: {}", userDTO);
-        emailClient.sendWelcomeEmailWithRetry(userDTO);
+        ResponseDTO responseDTO = emailClient.sendWelcomeEmailWithRetry(userDTO);
+        if (!responseDTO.data().isEmpty() && Boolean.FALSE.equals(responseDTO.data().getFirst())) {
+            return responseDTO;
+        }
         log.info("Successfully user create with Retry: {}", userDTO);
         return new ResponseDTO("User created", List.of(userDTO));
     }

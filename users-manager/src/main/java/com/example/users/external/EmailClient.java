@@ -33,7 +33,7 @@ public class EmailClient {
     }
 
     private ResponseDTO fallbackSendEmail(UserDTO userDTO, Throwable t) {
-        log.warn("Circuit Breaker Fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        log.warn("Circuit Breaker Fallback method: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
         return new ResponseDTO("Fail to send message email.",List.of(false));
     }
 
@@ -43,7 +43,7 @@ public class EmailClient {
     }
 
     private ResponseDTO fallbackSendEmailRetry(UserDTO userDTO, Throwable t) {
-        log.warn("Retry fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        log.warn("Retry fallback method: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
         return new ResponseDTO("Fail retry send message email.", List.of(false));
     }
 
@@ -53,7 +53,7 @@ public class EmailClient {
     }
 
     private ResponseDTO fallbackSendEmailRateLimiter(UserDTO userDTO, Throwable t) {
-        log.warn("Rate Limiter fallback: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
+        log.warn("Rate Limiter fallback method: not send e-mail to '{}'. Cause: {}", userDTO.getEmail(), t.getMessage());
         return new ResponseDTO("Limit exceded, await moment before send new message email.", List.of(false));
     }
 
