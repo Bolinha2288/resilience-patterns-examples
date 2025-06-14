@@ -66,4 +66,4 @@ For filter specific metric data in retry for example using successful_without_re
 
 
 
-> 📚 **Read more:** See more information visit this article on Medium: [O que é um software Resiliente? ](https://medium.com/seu-link-aqui)
+> 📚 **Read more:** See more information visit this article on Medium: [O que é um software Resiliente? ](https://medium.com/@eduardo.borsato.oli/o-que-%C3%A9-um-software-resiliente-283b35f97bc8)
