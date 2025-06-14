@@ -1,72 +1,25 @@
 services:
-  user-db:
-    image: mysql:8.0
-    container_name: user-db-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_user_data:/var/lib/mysql
-      - ./user-init-db:/docker-entrypoint-initdb.d:rw,z
-    deploy:
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 512M
 
   user-manager-service:
     build: ../users-manager
     ports:
       - "8090:8080"
     environment:
-      DATASOURCE_URL: "jdbc:mysql://user-db:3306/users_manager?useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true"
-      DATASOURCE_USERNAME: "root"
-      DATASOURCE_PASSWORD: "root"
-    depends_on:
-      - "user-db"
+      BASE_URL_EMAIL_MANAGER: "http://email-manager-service:8080/emails"
+      CB_SLIDING_WINDOW_SIZE: 10
+      CB_MINIMUM_NUMBER_OF_CALLS: 10
+      CB_FAILURE_RATE_THRESHOLD: 50
+      CB_WAIT_DURATION_IN_OPEN_STATE: 30s
+      RL_LIMIT_FOR_PERIOD: 6
+      RL_LIMIT_REFRESH_PERIOD: 60s
+      RETRY_MAX_ATTEMPTS: 3
+      RETRY_WAIT_DURATION: 1s
+      RETRY_ENABLE_EXPONENTIAL_BACKOFF: "true"
+      RETRY_EXPONENTIAL_BACKOFF_MULTIPLIER: 2.0
     deploy:
       resources:
         limits:
-          cpus: '0.3'
-          memory: 512M
-
-  account-db:
-    image: mysql:8.0
-    container_name: account-db-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_account_data:/var/lib/mysql
-      - ./account-init-db:/docker-entrypoint-initdb.d:rw,z
-    deploy:
-      resources:
-        limits:
-          cpus: '0.3'
-          memory: 512M
-
-  account-manager-service:
-    build: ../account-manager
-    ports:
-      - "8091:8080"
-    environment:
-      DATASOURCE_URL: "jdbc:mysql://account-db:3306/accounts_manager?useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true"
-      DATASOURCE_USERNAME: "root"
-      DATASOURCE_PASSWORD: "root"
-    depends_on:
-      - "account-db"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.3'
+          cpus: '0.8'
           memory: 512M
 
   email-manager-service:
@@ -76,16 +29,13 @@ services:
     environment:
       MAIL_HOST: "smtp.gmail.com"
       MAIL_PORT: "587"
-      MAIL_USERNAME: "config@your.email"
-      MAIL_PASSWORD: "your.email.password"
-    depends_on:
-      - "rabbitmq"
+      MAIL_USERNAME: "test@test"
+      MAIL_PASSWORD: "your_password_here"
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '0.8'
           memory: 512M
-
 
 volumes:
   mysql_user_data:
